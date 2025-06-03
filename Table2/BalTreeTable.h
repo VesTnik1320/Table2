@@ -15,30 +15,12 @@ protected:
     int RemoveMin(TreeNode<TKey, TVal>*& pNode);
 public:
     void InsertBalanced(const Record<TKey, TVal>& rec) {
-        InsBalTree(this->pRoot, rec);  // pRoot уже является TreeNode*&
+        InsBalTree(this->pRoot, rec); 
     }
-    void Inserte(const TKey& key, const TVal& val) /*override*/ {
+    void Inserte(const TKey& key, const TVal& val) {
         Record<TKey, TVal> rec(key, val);
-        InsBalTree(this->pRoot, rec); // Корректный вызов балансировки
+        InsBalTree(this->pRoot, rec); 
     }
-	//void PrintTree(ostream& os) const /*override*/ {
- //       if (this->pRoot == nullptr) {
- //           os << "Дерево пусто" << endl;
- //           return;
- //       }
- //       // Рекурсивная функция для печати с уровнями и балансом
- //       function<void(TreeNode<TKey, TVal>*, int, const string&)> printNode =
- //           [&](TreeNode<TKey, TVal>* node, int level, const string& prefix) {
- //           if (node == nullptr) return;
- //           // Печатаем текущий узел с балансом
- //           os << prefix << "Уровень " << level << ": " << node->rec.key
- //               << " (баланс: " << node->bal << ")" << endl;
- //           // Рекурсивно печатаем поддеревья
- //           printNode(node->pLeft, level + 1, prefix + "  ");
- //           printNode(node->pRight, level + 1, prefix + "  ");
- //           };
- //       printNode(this->pRoot, 0, "");
-	//}
     TreeNode<TKey, TVal>* GetRoot() const { return this->pRoot; }
     void Insert(Record<TKey, TVal> rec);
     void Insert(TKey key, TVal val);

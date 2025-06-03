@@ -40,7 +40,7 @@ public:
         if (Find(rec.key))
             throw "Error, this record already exists!";
 
-        pList[this->HashFunc(rec.key)].push_front(rec); // Исправлено InsFirst на push_front
+        pList[this->HashFunc(rec.key)].push_front(rec); 
         this->DataCount++;
         this->Eff++;
     }
@@ -119,7 +119,6 @@ public:
 
         std::list<Record<TKey, TVal>>* newLists = new std::list<Record<TKey, TVal>>[newSize];
 
-        // Перехешируем все существующие записи
         for (int i = 0; i < this->size; i++) {
             for (const auto& rec : pList[i]) {
                 int newHash = this->HashFunc(rec.key) % newSize;

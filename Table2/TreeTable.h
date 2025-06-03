@@ -46,7 +46,6 @@ public:
     virtual TKey GetCurrKey() { return pCurr->rec.key; }
     virtual TVal GetCurrVal() { return pCurr->rec.val; }
     virtual Record<TKey, TVal> GetCurr() { return pCurr->rec; }
-	//void PrintTreeWithLevels(ostream& os) const;
     void PrintRec(ostream& os, TreeNode<TKey, TVal>* p);
     void PrintTree(ostream& os);
 
@@ -303,23 +302,3 @@ void TreeTable<TKey, TVal>::PrintTree(ostream& os) {
     level = 0;
     PrintRec(os, pRoot);
 }
-
-//template<class TKey, class TVal>
-//void TreeTable<TKey, TVal>::PrintTree(ostream& os) const {
-//    if (!pRoot) {
-//        os << "Дерево пусто\n";
-//        return;
-//    }
-//
-//    // Вспомогательная функция для рекурсивного вывода
-//    function<void(TreeNode<TKey, TVal>*, int, const string&)> print =
-//        [&](TreeNode<TKey, TVal>* node, int level, const string& prefix) {
-//        if (!node) return;
-//
-//        os << prefix << "Уровень " << level << ": " << node->rec.key << "\n";
-//        print(node->pLeft, level + 1, prefix + "  ");
-//        print(node->pRight, level + 1, prefix + "  ");
-//        };
-//
-//    print(pRoot, 0, "");
-//}

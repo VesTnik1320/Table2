@@ -36,7 +36,6 @@ class ConsoleModel {
 private:
     int tablesSize;                       // Размер таблиц
     int tablesItems;                      // Количество элементов
-    int errCount;                         // Счетчик ошибок
     std::vector<Table<std::string, int>*> tables;  // Коллекция таблиц
     int currentTableIndex = 0;
     std::string CreateHorizontalLine(int width) const {

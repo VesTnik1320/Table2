@@ -118,11 +118,9 @@ public:
         Record<TKey, TVal>* newRecs = new Record<TKey, TVal>[newSize];
         Status* newStatus = new Status[newSize];
 
-        // Переносим данные
         for (int i = 0; i < size; i++) {
             if (status[i] == Used) {
                 int newPos = this->HashFunc(pRec[i].key) % newSize;
-                // Нужно реализовать повторное хеширование для нового размера
                 while (newStatus[newPos] != Free) {
                     newPos = (newPos + step) % newSize;
                 }
@@ -138,7 +136,6 @@ public:
         status = newStatus;
         size = newSize;
 
-        // Сбрасываем статусы для новых ячеек
         for (int i = this->DataCount; i < newSize; i++) {
             status[i] = Free;
         }

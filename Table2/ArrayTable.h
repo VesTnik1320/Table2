@@ -37,12 +37,10 @@ public:
         if (newSize < this->DataCount) {
             throw std::invalid_argument("Ќовый размер меньше текущего количества данных");
         }
-
         Record<TKey, TValue>* newArr = new Record<TKey, TValue>[newSize];
         for (int i = 0; i < this->DataCount; ++i) {
             newArr[i] = this->pRec[i];
         }
-
         delete[] this->pRec;
         this->pRec = newArr;
         this->size = newSize;

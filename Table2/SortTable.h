@@ -127,11 +127,11 @@ public:
 			tmpArr[k++] = this->pRec[i++];
 		}
 
-		while (j <= r) {  // Исправлено с j >= r на j <= r
+		while (j <= r) { 
 			tmpArr[k++] = this->pRec[j++];
 		}
 
-		for (int h = l; h <= r; h++) {  // Исправлено условие цикла
+		for (int h = l; h <= r; h++) {  
 			this->pRec[h] = tmpArr[h];
 			this->Eff++; // Счётчик копирований
 		}

@@ -90,7 +90,6 @@ void ConsoleModel::InsertMany(int count, int border) {
     int inserted = 0;
     int step = std::max(1, count / 20);
 
-    // Определяем нужную длину ключа (макс. число символов)
     int keyWidth = std::to_string(border - 1).length();
 
     std::cout << "Прогресс: [";
@@ -104,7 +103,7 @@ void ConsoleModel::InsertMany(int count, int border) {
 
             // Для BalTreeTable используем специальный метод вставки
             if (auto balTree = dynamic_cast<BalTreeTable<std::string, int>*>(tables[currentTableIndex])) {
-                balTree->Inserte(key, r);  // Используем Inserte для балансировки
+                balTree->Inserte(key, r); 
             }
             else {
                 tables[currentTableIndex]->Insert(key, static_cast<unsigned __int64>(r));
@@ -413,7 +412,7 @@ void ConsoleModel::DrawMenu() {
 
 void ConsoleModel::Update(const std::string& message) {
     system("cls");
-    const int BOX_WIDTH = 60; // Увеличено с 40 до 60 для удобства
+    const int BOX_WIDTH = 60; 
 
     // Верхняя граница
     std::cout << BOX_CORNER_TL << std::string(BOX_WIDTH - 2, *BOX_HORIZ) << BOX_CORNER_TR << "\n";

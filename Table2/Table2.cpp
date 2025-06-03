@@ -5,7 +5,6 @@
 
 int main() {
     ArrayHashTable<int, int> arrTable(10);
-    //ListHashTable<int, int> listTable(10);
 
     arrTable.Insert(1, 10);
     arrTable.Insert(2, 12);
@@ -23,14 +22,8 @@ int main() {
     bool a = table.IsFull();
     bool b = table.Find(1);
     bool c = table.Find(2);
-    bool d = table.IsEnd();  // после Reset/GoNext не найдёт
+    bool d = table.IsEnd();  
 	printf("IsFull: %d, Find 1: %d, Find 2: %d, IsEnd: %d\n", a, b, c, d);
-    //listTable.Insert(3);
-    //listTable.Insert(13); // same bucket as 3 if size = 10
-
-    //if (listTable.Find(13)) {
-    //    std::cout << "Found key 13 in list: " << val << std::endl;
-    //}
-
+    
     return 0;
 }

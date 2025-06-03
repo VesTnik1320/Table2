@@ -19,18 +19,6 @@ public:
         return false;
     }
 
-    //void Insert(Tkey key, TVal val) {
-    //    if (Find(key))
-    //        throw - 2;  // Уже существует
-    //    if (this->DataCount == this->size)
-    //        throw - 1;  // Нет места
-    //   
-    //    Record<Tkey, TVal> r(key, val);
-    //    this->pRec[this->Curr] = r;
-    //    this->DataCount++;
-    //    this->Eff++;
-    //    
-    //}
     void Insert(Tkey key, TVal val) {
         if (Find(key))
             throw - 2;  // Уже существует
@@ -39,11 +27,10 @@ public:
             throw - 1;  // Нет места
 
         Record<Tkey, TVal> r(key, val);
-        this->pRec[this->DataCount] = r;  // ← используем DataCount, а не Curr
+        this->pRec[this->DataCount] = r; 
         this->DataCount++;
         this->Eff++;
     }
-
 
     void Delete(Tkey key) {
         if (!Find(key)) throw - 3;
@@ -86,5 +73,4 @@ public:
     std::string GetTypeName() const override {
         return "ScanTable";
     }
-
 };
