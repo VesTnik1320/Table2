@@ -78,17 +78,13 @@ public:
     bool IsFull() const {
         return this->DataCount == this->size;
     }
+    
     void Resize(int newSize) override {
-        if (newSize < this->DataCount)
-            throw std::invalid_argument("Новый размер меньше текущего количества данных");
+        ArrayTable<Tkey, TVal>::Resize(newSize);
+    }
 
-        Record<Tkey, TVal>* newArr = new Record<Tkey, TVal>[newSize];
-        for (int i = 0; i < this->DataCount; ++i)
-            newArr[i] = this->pRec[i];
-
-        delete[] this->pRec;
-        this->pRec = newArr;
-        this->size = newSize;
+    std::string GetTypeName() const override {
+        return "ScanTable";
     }
 
 };

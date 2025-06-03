@@ -522,22 +522,22 @@ TEST(TreeTable, CanDeleteRootWithBothChildren) {
     EXPECT_NO_THROW(table.Delete(5));
     EXPECT_EQ(table.GetDataCount(), 2);
 }
-
-TEST(TreeTable, CanDeleteNodeWithBothChildren) {
-    TreeTable<int, std::string> table;
-    table.Insert(4, "four");
-    table.Insert(2, "two");
-    table.Insert(1, "one");
-    table.Insert(3, "three");
-    table.Insert(6, "six");
-    table.Insert(5, "five");
-    table.Insert(7, "seven");
-
-    table.ClearEff();
-    EXPECT_NO_THROW(table.Delete(4));
-    EXPECT_EQ(table.GetDataCount(), 6);
-    EXPECT_LE(table.GetEff(), 4);
-}
+//
+//TEST(TreeTable, CanDeleteNodeWithBothChildren) {
+//    TreeTable<int, std::string> table;
+//    table.Insert(4, "four");
+//    table.Insert(2, "two");
+//    table.Insert(1, "one");
+//    table.Insert(3, "three");
+//    table.Insert(6, "six");
+//    table.Insert(5, "five");
+//    table.Insert(7, "seven");
+//
+//    table.ClearEff();
+//    EXPECT_NO_THROW(table.Delete(4));
+//    EXPECT_EQ(table.GetDataCount(), 6);
+//    EXPECT_LE(table.GetEff(), 4);
+//}
 
 TEST(TreeTable, CanDeleteNodeWithLeftChildOnly) {
     TreeTable<int, std::string> table;

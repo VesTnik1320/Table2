@@ -34,9 +34,22 @@ public:
     void GoNext() { Curr++; }
     bool IsEnd() { return (this->DataCount == Curr); }
     void Resize(int newSize) override {
-        if (newSize < 1) {
-            throw std::invalid_argument("Новый размер меньше 1");
+        if (newSize < this->DataCount) {
+            throw std::invalid_argument("Новый размер меньше текущего количества данных");
         }
-        this->DataCount = newSize;
+
+        Record<TKey, TValue>* newArr = new Record<TKey, TValue>[newSize];
+        for (int i = 0; i < this->DataCount; ++i) {
+            newArr[i] = this->pRec[i];
+        }
+
+        delete[] this->pRec;
+        this->pRec = newArr;
+        this->size = newSize;
     }
+
+    std::string GetTypeName() const override {
+        return "ArrayTable";
+    }
+
 };

@@ -3,6 +3,7 @@
 #include "Table.h"
 #include <stack>
 #include <vector>
+#include <queue> 
 const int BAL_OK = 0; const int BAL_LEFT = -1; const int BAL_RIGHT = 1;
 template <class TKey, class TVal>
 struct TreeNode
@@ -34,16 +35,18 @@ public:
     void Delete(TKey key);
     bool IsFull() const;
     void Clear();
-    virtual int GetEff() const;
+    virtual int GetEff() {
+        return this->Eff;
+    };
     virtual void Reset();
     virtual void GoNext();
     virtual bool IsEnd();
-
+    TreeNode<TKey, TVal>*& GetRoot() { return pRoot; }
 
     virtual TKey GetCurrKey() { return pCurr->rec.key; }
     virtual TVal GetCurrVal() { return pCurr->rec.val; }
     virtual Record<TKey, TVal> GetCurr() { return pCurr->rec; }
-
+	//void PrintTreeWithLevels(ostream& os) const;
     void PrintRec(ostream& os, TreeNode<TKey, TVal>* p);
     void PrintTree(ostream& os);
 
@@ -53,10 +56,13 @@ public:
     }
 
     void Resize(int newSize) override {
-        if (newSize < 1) {
-            throw std::invalid_argument("Новый размер меньше 1");
+        if (newSize < this->DataCount) {
+            throw std::invalid_argument("Новый размер меньше текущего количества элементов");
         }
-        this->DataCount = newSize;
+    }
+
+    std::string GetTypeName() const override {
+        return "TreeTable";
     }
 
 };
@@ -298,7 +304,22 @@ void TreeTable<TKey, TVal>::PrintTree(ostream& os) {
     PrintRec(os, pRoot);
 }
 
-template<class TKey, class TVal>
-int TreeTable<TKey, TVal>::GetEff() const {
-    return this->Eff;
-}
+//template<class TKey, class TVal>
+//void TreeTable<TKey, TVal>::PrintTree(ostream& os) const {
+//    if (!pRoot) {
+//        os << "Дерево пусто\n";
+//        return;
+//    }
+//
+//    // Вспомогательная функция для рекурсивного вывода
+//    function<void(TreeNode<TKey, TVal>*, int, const string&)> print =
+//        [&](TreeNode<TKey, TVal>* node, int level, const string& prefix) {
+//        if (!node) return;
+//
+//        os << prefix << "Уровень " << level << ": " << node->rec.key << "\n";
+//        print(node->pLeft, level + 1, prefix + "  ");
+//        print(node->pRight, level + 1, prefix + "  ");
+//        };
+//
+//    print(pRoot, 0, "");
+//}

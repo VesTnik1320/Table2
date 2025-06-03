@@ -8,7 +8,10 @@ class SortTable : public ScanTable<Tkey, TVal> {
 protected:
 	Record<Tkey, TVal>* tmpArr;
 public:
-	SortTable(int _size) : ScanTable<Tkey, TVal>(_size) {}
+	SortTable(int _size) : ScanTable<Tkey, TVal>(_size), tmpArr(nullptr) {}
+	~SortTable() {
+		delete[] tmpArr;
+	}
 	bool Find(Tkey key) {
 		int l = 0, r = this->DataCount - 1;
 		while (l <= r)
@@ -51,7 +54,6 @@ public:
 		this->Eff++;
 	}
 
-
 	void Delete(Tkey key) {
 		bool res = Find(key);
 		if (res == false) throw - 1;
@@ -63,78 +65,76 @@ public:
 	}
 
 	void SelectSort() {
-		int i = 0, j = 0, mini;
-		for (i; i < this->DataCount; i++) {
-			j = 0;
-			mini = this->pRec[i].key;
-			int k = i;
-			for (j; j < this->DataCount; j++) {
-				if (mini > this->pRec[j].key) {
-					mini = this->pRec[j].key;
-					k = j;
+		this->Eff = 0; // Сброс счётчика
+		for (int i = 0; i < this->DataCount - 1; i++) {
+			int min_idx = i;
+			for (int j = i + 1; j < this->DataCount; j++) {
+				this->Eff++; // Счётчик сравнений
+				if (this->pRec[j].key < this->pRec[min_idx].key) {
+					min_idx = j;
 				}
 			}
-			Record<Tkey, TVal> tmp = this->pRec[k];
-			this->pRec[k] = this->pRec[i];
-			this->pRec[i] = tmp;
+			if (min_idx != i) {
+				std::swap(this->pRec[i], this->pRec[min_idx]);
+				this->Eff++; // Счётчик обменов
+			}
 		}
 	}
 
-	void QSortRec(int st, int fin) {
-		int l = st, j = fin;
-		Record<Tkey, TVal> k = this->pRec[(l + j) / 2];
-		while (l < j) {
-			while (this->pRec[l] < k)
-				l++;
-			while (this->pRec[j] > k)
-			{
-				j--;
-			}
-			if (l <= j) {
-				Record<Tkey, TVal> tmp = this->pRec[l];
-				this->pRec[l] = this->pRec[j];
-				this->pRec[j] = tmp;
-				l++;
-				j--;
+	void QSortRec(int left, int right) {
+		if (left < right) {
+			int pivot = Partition(left, right);
+			QSortRec(left, pivot - 1);
+			QSortRec(pivot + 1, right);
+		}
+	}
+
+	int Partition(int left, int right) {
+		auto pivot = this->pRec[right];
+		int i = left - 1;
+
+		for (int j = left; j <= right - 1; j++) {
+			this->Eff++; // Счётчик сравнений
+			if (this->pRec[j].key <= pivot.key) {
+				i++;
+				std::swap(this->pRec[i], this->pRec[j]);
+				this->Eff++; // Счётчик обменов
 			}
 		}
-		if (st < l) QSortRec(st, l);
-		if (fin > j) QSortRec(j, fin);
+		std::swap(this->pRec[i + 1], this->pRec[right]);
+		this->Eff++; // Счётчик обменов
+		return i + 1;
 	}
 
 	void Merge(int l, int r, int m) {
-		int i = l;
-		int j = m + 1;
-		int k = l;
+		// Выделяем память при первом вызове
+		if (tmpArr == nullptr) {
+			tmpArr = new Record<Tkey, TVal>[this->size];
+		}
+
+		int i = l, j = m + 1, k = l;
 		while (i <= m && j <= r) {
+			this->Eff++; // Счётчик сравнений
 			if (this->pRec[i].key < this->pRec[j].key) {
-				tmpArr[k] = this->pRec[i];
-				i++;
+				tmpArr[k++] = this->pRec[i++];
 			}
-			else
-			{
-				tmpArr[k] = this->pRec[j];
-				j++;
-			}
-			k++;
-		}
-		if (i <= m) {
-			while (i <= m) {
-				tmpArr[k] = this->pRec[i];
-				i++;
-				k++;
+			else {
+				tmpArr[k++] = this->pRec[j++];
 			}
 		}
-		else
-		{
-			while (j >= r) {
-				tmpArr[k] = this->pRec[j];
-				j++;
-				k++;
-			}
+
+		while (i <= m) {
+			tmpArr[k++] = this->pRec[i++];
 		}
-		for (int h = l; h < l; h++)
+
+		while (j <= r) {  // Исправлено с j >= r на j <= r
+			tmpArr[k++] = this->pRec[j++];
+		}
+
+		for (int h = l; h <= r; h++) {  // Исправлено условие цикла
 			this->pRec[h] = tmpArr[h];
+			this->Eff++; // Счётчик копирований
+		}
 	}
 
 	void MergeSort(int l, int r) {
@@ -146,9 +146,11 @@ public:
 	}
 
 	void Resize(int newSize) override {
-		if (newSize < 1) {
-			throw std::invalid_argument("Новый размер меньше 1");
-		}
-		this->DataCount = newSize;
+		ScanTable<Tkey, TVal>::Resize(newSize);
 	}
+
+	std::string GetTypeName() const override {
+		return "SortTable";
+	}
+
 };

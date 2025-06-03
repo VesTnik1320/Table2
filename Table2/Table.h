@@ -26,4 +26,17 @@ public:
     virtual bool IsEnd() = 0;
     virtual Record<TKey, TValue> GetCurr() = 0;
     virtual void Resize(int newSize) = 0;
+    virtual std::string GetTypeName() const = 0;
+
 };
+
+//template <typename KeyType, typename ValueType>
+//std::ostream& operator<<(std::ostream& os, const Table<KeyType, ValueType>& table) {
+//    table.Reset(); // Сбрасываем итератор таблицы
+//    while (!table.IsEnd()) {
+//        auto record = table.GetCurr();
+//        os << record.key << " " << record.val << "\n"; // Сериализация ключа и значения
+//        table.GoNext();
+//    }
+//    return os;
+//}

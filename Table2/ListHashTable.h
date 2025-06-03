@@ -114,9 +114,26 @@ public:
     }
     void Resize(int newSize) override {
         if (newSize < 1) {
-            throw std::invalid_argument("Новый размер меньше 1");
+            throw std::invalid_argument("Новый размер должен быть положительным");
         }
-        this->DataCount = newSize;
+
+        std::list<Record<TKey, TVal>>* newLists = new std::list<Record<TKey, TVal>>[newSize];
+
+        // Перехешируем все существующие записи
+        for (int i = 0; i < this->size; i++) {
+            for (const auto& rec : pList[i]) {
+                int newHash = this->HashFunc(rec.key) % newSize;
+                newLists[newHash].push_back(rec);
+            }
+        }
+
+        delete[] pList;
+        pList = newLists;
+        this->size = newSize;
+    }
+
+    std::string GetTypeName() const override {
+        return "ListHashTable";
     }
 
 };

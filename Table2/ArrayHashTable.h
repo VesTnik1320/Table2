@@ -111,9 +111,39 @@ public:
         return static_cast<int>(hasher(key) % size);
     }
     void Resize(int newSize) override {
-        if (newSize < 1) {
-            throw std::invalid_argument("Новый размер меньше 1");
+        if (newSize < this->DataCount) {
+            throw std::invalid_argument("Новый размер меньше текущего количества данных");
         }
-        this->DataCount = newSize;
+
+        Record<TKey, TVal>* newRecs = new Record<TKey, TVal>[newSize];
+        Status* newStatus = new Status[newSize];
+
+        // Переносим данные
+        for (int i = 0; i < size; i++) {
+            if (status[i] == Used) {
+                int newPos = this->HashFunc(pRec[i].key) % newSize;
+                // Нужно реализовать повторное хеширование для нового размера
+                while (newStatus[newPos] != Free) {
+                    newPos = (newPos + step) % newSize;
+                }
+                newRecs[newPos] = pRec[i];
+                newStatus[newPos] = Used;
+            }
+        }
+
+        delete[] pRec;
+        delete[] status;
+
+        pRec = newRecs;
+        status = newStatus;
+        size = newSize;
+
+        // Сбрасываем статусы для новых ячеек
+        for (int i = this->DataCount; i < newSize; i++) {
+            status[i] = Free;
+        }
+    }
+    std::string GetTypeName() const override {
+        return "ArrayHashTable";
     }
 };
