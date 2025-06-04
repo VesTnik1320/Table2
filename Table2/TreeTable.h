@@ -261,7 +261,7 @@ template<class TKey, class TVal>
 void TreeTable<TKey, TVal>::Clear()
 {
     DelNode(pRoot);
-    DataCount = 0;
+    this->DataCount = 0;
     pos = 0;
     pCurr = nullptr;
     pPrev = nullptr;
