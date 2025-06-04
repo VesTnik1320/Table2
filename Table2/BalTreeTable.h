@@ -13,7 +13,30 @@ protected:
     int DeleteRec(TreeNode<TKey, TVal>*& pNode, TKey key);
     TreeNode<TKey, TVal>* FindMin(TreeNode<TKey, TVal>* pNode);
     int RemoveMin(TreeNode<TKey, TVal>*& pNode);
+    TreeNode<TKey, TVal>* CopyTree(TreeNode<TKey, TVal>* pNode) {
+        if (!pNode) return nullptr;
+        auto* newNode = new TreeNode<TKey, TVal>(pNode->rec.key, pNode->rec.val);
+        newNode->bal = pNode->bal;
+        newNode->pLeft = CopyTree(pNode->pLeft);
+        newNode->pRight = CopyTree(pNode->pRight);
+        return newNode;
+    }
 public:
+    BalTreeTable(const BalTreeTable& other) {
+        this->pRoot = CopyTree(other.pRoot);
+        this->DataCount = other.DataCount;
+    }
+
+    // Оператор присваивания
+    BalTreeTable& operator=(const BalTreeTable& other) {
+        if (this != &other) {
+            this->Clear();  // Очистить старое дерево
+            this->pRoot = CopyTree(other.pRoot);
+            this->DataCount = other.DataCount;
+        }
+        return *this;
+    }
+    BalTreeTable() : TreeTable<TKey, TVal>() {}
     void InsertBalanced(const Record<TKey, TVal>& rec) {
         InsBalTree(this->pRoot, rec); 
     }
@@ -66,7 +89,6 @@ template <typename TKey, typename TVal>
 int BalTreeTable<TKey, TVal>::InsBalTree(TreeNode<TKey, TVal>*& pNode, Record<TKey, TVal> rec) { 
     int res = H_OK;
     if (pNode == nullptr) {
-        this->Eff++;
         pNode = new TreeNode<TKey, TVal>(rec.key, rec.val);
         res = H_INC;
         this->DataCount++;
@@ -205,7 +227,8 @@ int BalTreeTable<TKey, TVal>::DeleteRec(TreeNode<TKey, TVal>*& pNode, TKey key)
 {
     int res = H_OK;
     this->Eff++;
-    if (pNode == nullptr) throw - 1;
+    if (pNode == nullptr)
+        throw std::runtime_error("Key not found");
     if (pNode->rec.key < key)
     {
         int tmp = DeleteRec(pNode->pRight, key);
@@ -307,6 +330,7 @@ void BalTreeTable<TKey, TVal>::Insert(TKey key, TVal val)
 template<typename TKey, typename TVal>
 void BalTreeTable<TKey, TVal>::Delete(TKey key)
 {
-    if (this->IsEmpty()) return;
+    if (this->IsEmpty())
+        throw std::runtime_error("Empty tree");
     DeleteRec(this->pRoot, key);
 }

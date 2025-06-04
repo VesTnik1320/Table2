@@ -4,26 +4,28 @@
 #include "ListHashTable.h"
 
 int main() {
-    ArrayHashTable<int, int> arrTable(10);
+    const int TABLE_SIZE = 10;
+    ArrayHashTable<int, string> table(TABLE_SIZE, 1);
 
-    arrTable.Insert(1, 10);
-    arrTable.Insert(2, 12);
+    // Test 1: Hash consistency check
+    int testKey1 = 15;
+    int position1 = table.HashFunc(testKey1);
 
-    std::string val;
-    if (arrTable.Find(1)) {
-        std::cout << "Found key 1: " << val << std::endl;
+    // Add element and verify its position
+    table.Insert(testKey1, "value1");
+
+    // Verify element is at expected position
+    table.Reset();
+    bool found = false;
+    for (int i = 0; i < TABLE_SIZE && !table.IsEnd(); i++) {
+        if (table.GetCurrKey() == testKey1) {
+            printf("Index: %d, Position: %d\n", i, position1); // Should be at same position
+            found = true;
+            break;
+        }
+        table.GoNext();
     }
-    ArrayHashTable<int, int> table(5, 1);
-
-    table.Insert(1, 10);
-    table.Insert(2, 12);
-    table.Clear();
-
-    bool a = table.IsFull();
-    bool b = table.Find(1);
-    bool c = table.Find(2);
-    bool d = table.IsEnd();  
-	printf("IsFull: %d, Find 1: %d, Find 2: %d, IsEnd: %d\n", a, b, c, d);
+    printf("%s", found ? "true" : "false");
     
     return 0;
 }

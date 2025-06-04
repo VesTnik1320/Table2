@@ -7,6 +7,32 @@ class ScanTable : public ArrayTable<Tkey, TVal> {
 public:
     ScanTable(int _size) : ArrayTable<Tkey, TVal>(_size) {}
 
+    ScanTable(const ScanTable& other) : ArrayTable<Tkey, TVal>(other.size) {
+        this->DataCount = other.DataCount;
+        this->Curr = other.Curr;
+        this->Eff = other.Eff;
+        this->pRec = new Record<Tkey, TVal>[this->size];
+        for (int i = 0; i < this->DataCount; i++) {
+            this->pRec[i] = other.pRec[i];
+        }
+    }
+
+    ScanTable& operator=(const ScanTable& other) {
+        if (this == &other) return *this;
+
+        delete[] this->pRec;
+
+        this->size = other.size;
+        this->DataCount = other.DataCount;
+        this->Curr = other.Curr;
+        this->Eff = other.Eff;
+        this->pRec = new Record<Tkey, TVal>[this->size];
+        for (int i = 0; i < this->DataCount; i++) {
+            this->pRec[i] = other.pRec[i];
+        }
+        return *this;
+    }
+
     bool Find(Tkey key) {
         for (int i = 0; i < this->DataCount; i++) {
             this->Eff++;
@@ -54,6 +80,10 @@ public:
 
     bool IsEnd() {
         return this->Curr >= this->DataCount;
+    }
+
+    bool IsEmpty() const {
+        return this->DataCount == 0;
     }
 
     Record<Tkey, TVal> GetCurr() {

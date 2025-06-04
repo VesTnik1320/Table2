@@ -24,6 +24,7 @@ protected:
     TreeNode<TKey, TVal>* pRoot, * pCurr, * pPrev;
     std::stack<TreeNode<TKey, TVal>*> st;
     void DelNode(TreeNode<TKey, TVal>* node);
+    TreeNode<TKey, TVal>* CopyNode(TreeNode<TKey, TVal>* node);
 public:
     TreeTable() : pRoot(nullptr), pCurr(nullptr), pPrev(nullptr), pos(0), level(0) {};
     bool IsEmpty() const override {
@@ -54,6 +55,21 @@ public:
         DelNode(pRoot);
     }
 
+    TreeTable<TKey, TVal>& operator=(const TreeTable<TKey, TVal>& other)
+    {
+        if (this != &other) {
+            DelNode(pRoot);
+            pRoot = CopyNode(other.pRoot);
+            pCurr = nullptr;
+            pPrev = nullptr;
+            pos = 0;
+            level = 0;
+            this->dataCount = other.dataCount;
+            this->eff = other.eff;
+        }
+        return *this;
+    }
+
     void Resize(int newSize) override {
         if (newSize < this->DataCount) {
             throw std::invalid_argument("Новый размер меньше текущего количества элементов");
@@ -65,7 +81,19 @@ public:
     }
 
 };
+template<class TKey, class TVal>
+inline TreeNode<TKey, TVal>* TreeTable<TKey, TVal>::CopyNode(TreeNode<TKey, TVal>* node)
+{
+    if (!node) return nullptr;
 
+    TreeNode<TKey, TVal>* newNode = new TreeNode<TKey, TVal>(node->rec.key, node->rec.val);
+    newNode->bal = node->bal;
+
+    newNode->pLeft = CopyNode(node->pLeft);
+    newNode->pRight = CopyNode(node->pRight);
+
+    return newNode;
+}
 template<class TKey, class TVal>
 void TreeTable<TKey, TVal>::DelNode(TreeNode<TKey, TVal>* node)
 {
@@ -78,8 +106,9 @@ void TreeTable<TKey, TVal>::DelNode(TreeNode<TKey, TVal>* node)
 template<class TKey, class TVal>
 bool TreeTable<TKey, TVal>::Find(TKey key)
 {
-    this->Eff = 0;
+    this->Eff = 0;  
     pCurr = pRoot;
+    pPrev = nullptr;
     while (pCurr != nullptr) {
         this->Eff++;
         if (key > pCurr->rec.key) {
@@ -90,14 +119,14 @@ bool TreeTable<TKey, TVal>::Find(TKey key)
             pPrev = pCurr;
             pCurr = pCurr->pLeft;
         }
-        else if (key == pCurr->rec.key) {
+        else {
             return true;
         }
     }
-    //this->Eff++;
     pCurr = pPrev;
     return false;
 }
+
 
 template<class TKey, class TVal>
 void TreeTable<TKey, TVal>::Insert(TKey key, TVal val) 
@@ -231,22 +260,12 @@ bool TreeTable<TKey, TVal>::IsFull() const
 template<class TKey, class TVal>
 void TreeTable<TKey, TVal>::Clear()
 {
-    vector < TreeNode<TKey, TVal>*> toDel;
-    int sz = this->DataCount, i = 0;
-    for (Reset(); i < sz; GoNext(), i++)
-    {
-
-        toDel.push_back(pCurr);
-    }
-    for (i = 0; i < sz; i++)
-    {
-        delete toDel[i];
-    }
+    DelNode(pRoot);
+    DataCount = 0;
+    pos = 0;
     pCurr = nullptr;
     pPrev = nullptr;
     pRoot = nullptr;
-    this->DataCount = 0;
-    pos = 0;
 }
 
 template<class TKey, class TVal>

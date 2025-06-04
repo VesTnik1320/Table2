@@ -24,7 +24,40 @@ public:
         delete[] pList;
     }
 
+    // Конструктор копирования
+    ListHashTable(const ListHashTable& other) : HashTable<TKey, TVal>(other.size) {
+        pList = new std::list<Record<TKey, TVal>>[this->size];
+        for (int i = 0; i < this->size; i++) {
+            pList[i] = other.pList[i];
+        }
+        this->DataCount = other.DataCount;
+        this->Eff = other.Eff;
+        CurrList = other.CurrList;
+        // Итераторы нельзя просто копировать, нужно переустановить
+        Reset();
+    }
+
+    // Оператор присваивания
+    ListHashTable& operator=(const ListHashTable& other) {
+        if (this != &other) {
+            delete[] pList;
+
+            this->size = other.size;
+            pList = new std::list<Record<TKey, TVal>>[this->size];
+            for (int i = 0; i < this->size; i++) {
+                pList[i] = other.pList[i];
+            }
+            this->DataCount = other.DataCount;
+            this->Eff = other.Eff;
+            CurrList = other.CurrList;
+            // Итераторы нельзя просто копировать, нужно переустановить
+            Reset();
+        }
+        return *this;
+    }
+
     bool Find(TKey key) {
+        this->Eff = 0;
         CurrList = this->HashFunc(key);
         for (currI = pList[CurrList].begin(); currI != pList[CurrList].end(); ++currI) {
             this->Eff++;
@@ -34,16 +67,18 @@ public:
         return false;
     }
 
-    void Insert(Record<TKey, TVal> rec)   {
+    void Insert(Record<TKey, TVal> rec) {
         if (IsFull())
             throw "Error, no space for new record!";
-        if (Find(rec.key))
+
+        if (Find(rec.key))  // Find устанавливает CurrList
             throw "Error, this record already exists!";
 
-        pList[this->HashFunc(rec.key)].push_front(rec); 
+        pList[CurrList].push_front(rec);  // Используем CurrList, чтобы не вызывать HashFunc снова
         this->DataCount++;
         this->Eff++;
     }
+
 
     void Insert(TKey key, TVal val) {
         Record<TKey, TVal> rec(key, val);

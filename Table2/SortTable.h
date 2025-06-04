@@ -12,29 +12,47 @@ public:
 	~SortTable() {
 		delete[] tmpArr;
 	}
+
+	SortTable& operator=(const SortTable& other) {
+		if (this == &other)
+			return *this;
+
+		// Освобождаем временный массив, если есть
+		delete[] tmpArr;
+		tmpArr = nullptr;
+
+		// Если размер изменился, надо перевыделить pRec
+		if (this->size != other.size) {
+			delete[] this->pRec;  // освобождаем старый массив
+			this->size = other.size;
+			this->pRec = new Record<Tkey, TVal>[this->size];
+		}
+
+		this->DataCount = other.DataCount;
+		this->Eff = other.Eff;
+		this->Curr = other.Curr;
+
+		// Копируем записи
+		for (int i = 0; i < this->DataCount; i++) {
+			this->pRec[i] = other.pRec[i];
+		}
+
+		return *this;
+	}
+
 	bool Find(Tkey key) {
 		int l = 0, r = this->DataCount - 1;
-		while (l <= r)
-		{
+		while (l <= r) {
 			int m = (l + r) / 2;
 			this->Eff++;
 			if (key == this->pRec[m].key) {
-				this->Curr = 0;
+				this->Curr = m;  // <-- исправлено!
 				return true;
 			}
+			else if (key > this->pRec[m].key)
+				l = m + 1;
 			else
-				if (key > this->pRec[m].key)
-					l = m + 1;
-				else
-					if (key < this->pRec[m].key)
-						r = m - 1;
-					else
-					{
-						this->Curr = m;
-						return true;
-					}
-
-
+				r = m - 1;
 		}
 		this->Curr = l;
 		return false;

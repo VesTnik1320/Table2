@@ -18,6 +18,16 @@ public:
         if (_size <= 0 || _step < 1)
             throw "Error size or step!";
 
+        // Автоматический подбор шага, если передали 1
+        if (step == 1) {
+            for (int i = 2; i * i <= size; i++) {
+                if (size % i != 0) {
+                    step = i;
+                    break;
+                }
+            }
+        }
+
         pRec = new Record<TKey, TVal>[size];
         status = new Status[size];
 
@@ -31,41 +41,84 @@ public:
         delete[] status;
     }
 
+    // Конструктор копирования
+    ArrayHashTable(const ArrayHashTable& other) :
+        size(other.size), step(other.step), curr(other.curr)
+    {
+        pRec = new Record<TKey, TVal>[size];
+        status = new Status[size];
+
+        for (int i = 0; i < size; i++) {
+            pRec[i] = other.pRec[i];
+            status[i] = other.status[i];
+        }
+        this->DataCount = other.DataCount;
+        this->Eff = other.Eff;
+    }
+
+    // Оператор присваивания
+    ArrayHashTable& operator=(const ArrayHashTable& other) {
+        if (this != &other) {
+            delete[] pRec;
+            delete[] status;
+
+            size = other.size;
+            step = other.step;
+            curr = other.curr;
+
+            pRec = new Record<TKey, TVal>[size];
+            status = new Status[size];
+
+            for (int i = 0; i < size; i++) {
+                pRec[i] = other.pRec[i];
+                status[i] = other.status[i];
+            }
+            this->DataCount = other.DataCount;
+            this->Eff = other.Eff;
+        }
+        return *this;
+    }
+
     TKey GetCurrKey() { return pRec[curr].key; }
-    TVal GetCurrVal() { return pRec[curr].value; }
+    TVal GetCurrVal() { return pRec[curr].val; }
     Record<TKey, TVal> GetCurr() { return pRec[curr]; }
 
     bool Find(TKey key) {
         curr = this->HashFunc(key);
-        int tmp = -3;
+        int firstDeleted = -1;
 
         for (int i = 0; i < size; i++) {
             this->Eff++;
 
-            if (status[curr] == Free)
+            if (status[curr] == Free) {
+                if (firstDeleted != -1) curr = firstDeleted;  // Возвращаем первую Deleted позицию
                 break;
-            else if (status[curr] == Deleted && tmp == -3)
-                tmp = curr;
-            else if (status[curr] == Used && pRec[curr].key == key)
+            }
+            else if (status[curr] == Deleted && firstDeleted == -1) {
+                firstDeleted = curr;  // Запоминаем первую Deleted позицию
+            }
+            else if (status[curr] == Used && pRec[curr].key == key) {
                 return true;
+            }
 
             curr = (curr + step) % size;
         }
-
-        if (tmp != -3)
-            curr = tmp;
 
         return false;
     }
 
     void Insert(TKey key, TVal val) {
+        if (IsFull())
+            throw "Table is full!";
+
+        this->Eff = 0;  // Сбрасываем счётчик перед поиском
         if (Find(key))
             throw "Error this rec exists!";
+
         status[curr] = Used;
-        Record<TKey, TVal> tmp(key, val);
-        pRec[curr] = tmp;
+        pRec[curr] = Record<TKey, TVal>(key, val);
         this->DataCount++;
-        this->Eff++;
+        this->Eff++;  // Учитываем только саму вставку
     }
 
     void Delete(TKey key) {
