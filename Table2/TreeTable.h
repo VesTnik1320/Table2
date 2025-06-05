@@ -28,7 +28,7 @@ protected:
 public:
     TreeTable() : pRoot(nullptr), pCurr(nullptr), pPrev(nullptr), pos(0), level(0) {};
     bool IsEmpty() const override {
-        return pRoot == nullptr;  // Таблица пуста, если корень nullptr
+        return pRoot == nullptr; 
     }
     bool Find(TKey key);
     virtual void Insert(TKey key, TVal val);

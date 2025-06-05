@@ -17,13 +17,11 @@ public:
 		if (this == &other)
 			return *this;
 
-		// Освобождаем временный массив, если есть
 		delete[] tmpArr;
 		tmpArr = nullptr;
 
-		// Если размер изменился, надо перевыделить pRec
 		if (this->size != other.size) {
-			delete[] this->pRec;  // освобождаем старый массив
+			delete[] this->pRec; 
 			this->size = other.size;
 			this->pRec = new Record<Tkey, TVal>[this->size];
 		}
@@ -32,7 +30,6 @@ public:
 		this->Eff = other.Eff;
 		this->Curr = other.Curr;
 
-		// Копируем записи
 		for (int i = 0; i < this->DataCount; i++) {
 			this->pRec[i] = other.pRec[i];
 		}
@@ -46,7 +43,7 @@ public:
 			int m = (l + r) / 2;
 			this->Eff++;
 			if (key == this->pRec[m].key) {
-				this->Curr = m;  // <-- исправлено!
+				this->Curr = m; 
 				return true;
 			}
 			else if (key > this->pRec[m].key)
@@ -83,18 +80,18 @@ public:
 	}
 
 	void SelectSort() {
-		this->Eff = 0; // Сброс счётчика
+		this->Eff = 0; 
 		for (int i = 0; i < this->DataCount - 1; i++) {
 			int min_idx = i;
 			for (int j = i + 1; j < this->DataCount; j++) {
-				this->Eff++; // Счётчик сравнений
+				this->Eff++; 
 				if (this->pRec[j].key < this->pRec[min_idx].key) {
 					min_idx = j;
 				}
 			}
 			if (min_idx != i) {
 				std::swap(this->pRec[i], this->pRec[min_idx]);
-				this->Eff++; // Счётчик обменов
+				this->Eff++;
 			}
 		}
 	}
@@ -112,27 +109,26 @@ public:
 		int i = left - 1;
 
 		for (int j = left; j <= right - 1; j++) {
-			this->Eff++; // Счётчик сравнений
+			this->Eff++; 
 			if (this->pRec[j].key <= pivot.key) {
 				i++;
 				std::swap(this->pRec[i], this->pRec[j]);
-				this->Eff++; // Счётчик обменов
+				this->Eff++; 
 			}
 		}
 		std::swap(this->pRec[i + 1], this->pRec[right]);
-		this->Eff++; // Счётчик обменов
+		this->Eff++; 
 		return i + 1;
 	}
 
 	void Merge(int l, int r, int m) {
-		// Выделяем память при первом вызове
 		if (tmpArr == nullptr) {
 			tmpArr = new Record<Tkey, TVal>[this->size];
 		}
 
 		int i = l, j = m + 1, k = l;
 		while (i <= m && j <= r) {
-			this->Eff++; // Счётчик сравнений
+			this->Eff++; 
 			if (this->pRec[i].key < this->pRec[j].key) {
 				tmpArr[k++] = this->pRec[i++];
 			}
@@ -151,7 +147,7 @@ public:
 
 		for (int h = l; h <= r; h++) {  
 			this->pRec[h] = tmpArr[h];
-			this->Eff++; // Счётчик копирований
+			this->Eff++; 
 		}
 	}
 

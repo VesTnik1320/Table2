@@ -27,10 +27,9 @@ public:
         this->DataCount = other.DataCount;
     }
 
-    // Оператор присваивания
     BalTreeTable& operator=(const BalTreeTable& other) {
         if (this != &other) {
-            this->Clear();  // Очистить старое дерево
+            this->Clear(); 
             this->pRoot = CopyTree(other.pRoot);
             this->DataCount = other.DataCount;
         }
@@ -97,7 +96,7 @@ int BalTreeTable<TKey, TVal>::InsBalTree(TreeNode<TKey, TVal>*& pNode, Record<TK
         this->Eff++;
         int tmp = InsBalTree(pNode->pLeft, rec);
         if (tmp == H_INC) {
-            this->Eff++;//?
+            this->Eff++;
             res = BalTreeLeft(pNode);
         }
     }
@@ -105,7 +104,7 @@ int BalTreeTable<TKey, TVal>::InsBalTree(TreeNode<TKey, TVal>*& pNode, Record<TK
         this->Eff++;
         int tmp = InsBalTree(pNode->pRight, rec);
         if (tmp == H_INC) {
-            this->Eff++;//?
+            this->Eff++;
             res = BalTreeRight(pNode);
         }
     }
@@ -113,31 +112,27 @@ int BalTreeTable<TKey, TVal>::InsBalTree(TreeNode<TKey, TVal>*& pNode, Record<TK
 }
 
 template <typename TKey, typename TVal>
-int BalTreeTable<TKey, TVal>::BalTreeLeft(TreeNode<TKey, TVal>*& pNode, bool isInsert)
-{
+int BalTreeTable<TKey, TVal>::BalTreeLeft(TreeNode<TKey, TVal>*& pNode, bool isInsert) {
     int res = H_OK;
     if (pNode->bal == BAL_RIGHT) {
         pNode->bal = BAL_OK;
-        if (isInsert) res = H_OK;
-        else res = H_DEC;
+        res = isInsert ? H_OK : H_DEC;
     }
     else if (pNode->bal == BAL_OK) {
         pNode->bal = BAL_LEFT;
-        if (isInsert) res = H_INC;
-        else res = H_OK;
+        res = isInsert ? H_INC : H_OK;
     }
     else if (pNode->bal == BAL_LEFT) {
         TreeNode<TKey, TVal>* p1 = pNode->pLeft;
         if (p1->bal == BAL_LEFT) {
-            // Малый правый поворот
             pNode->pLeft = p1->pRight;
             p1->pRight = pNode;
             pNode->bal = BAL_OK;
             pNode = p1;
             pNode->bal = BAL_OK;
+            res = isInsert ? H_OK : H_DEC;
         }
         else {
-            // Большой правый поворот
             TreeNode<TKey, TVal>* p2 = p1->pRight;
             p1->pRight = p2->pLeft;
             p2->pLeft = p1;
@@ -159,9 +154,7 @@ int BalTreeTable<TKey, TVal>::BalTreeLeft(TreeNode<TKey, TVal>*& pNode, bool isI
 
             pNode = p2;
             pNode->bal = BAL_OK;
-
-            if (isInsert) res = H_OK;
-            else res = H_DEC;
+            res = isInsert ? H_OK : H_DEC;
         }
     }
     return res;
@@ -184,15 +177,15 @@ int BalTreeTable<TKey, TVal>::BalTreeRight(TreeNode<TKey, TVal>*& pNode, bool is
     else if (pNode->bal == BAL_RIGHT) {
         TreeNode<TKey, TVal>* p1 = pNode->pRight;
         if (p1->bal == BAL_RIGHT) {
-            // Малый левый поворот
             pNode->pRight = p1->pLeft;
             p1->pLeft = pNode;
             pNode->bal = BAL_OK;
             pNode = p1;
             pNode->bal = BAL_OK;
+            if (isInsert) res = H_OK;
+            else res = H_DEC;
         }
         else {
-            // Большой левый поворот
             TreeNode<TKey, TVal>* p2 = p1->pLeft;
             p1->pLeft = p2->pRight;
             p2->pRight = p1;
@@ -215,12 +208,12 @@ int BalTreeTable<TKey, TVal>::BalTreeRight(TreeNode<TKey, TVal>*& pNode, bool is
             pNode = p2;
             pNode->bal = BAL_OK;
 
-            if (!isInsert) res = H_DEC;
+            if (isInsert) res = H_OK;
+            else res = H_DEC;
         }
     }
     return res;
 }
-
 
 template<typename TKey, typename TVal>
 int BalTreeTable<TKey, TVal>::DeleteRec(TreeNode<TKey, TVal>*& pNode, TKey key)
@@ -274,7 +267,6 @@ int BalTreeTable<TKey, TVal>::DeleteRec(TreeNode<TKey, TVal>*& pNode, TKey key)
     }
     return res;
 }
-
 
 template<typename TKey, typename TVal>
 TreeNode<TKey, TVal>* BalTreeTable<TKey, TVal>::FindMin(TreeNode<TKey, TVal>* pNode)

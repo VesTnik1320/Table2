@@ -41,7 +41,6 @@ public:
         delete[] status;
     }
 
-    // Конструктор копирования
     ArrayHashTable(const ArrayHashTable& other) :
         size(other.size), step(other.step), curr(other.curr)
     {
@@ -56,7 +55,6 @@ public:
         this->Eff = other.Eff;
     }
 
-    // Оператор присваивания
     ArrayHashTable& operator=(const ArrayHashTable& other) {
         if (this != &other) {
             delete[] pRec;
@@ -91,11 +89,11 @@ public:
             this->Eff++;
 
             if (status[curr] == Free) {
-                if (firstDeleted != -1) curr = firstDeleted;  // Возвращаем первую Deleted позицию
+                if (firstDeleted != -1) curr = firstDeleted; 
                 break;
             }
             else if (status[curr] == Deleted && firstDeleted == -1) {
-                firstDeleted = curr;  // Запоминаем первую Deleted позицию
+                firstDeleted = curr; 
             }
             else if (status[curr] == Used && pRec[curr].key == key) {
                 return true;
@@ -111,14 +109,14 @@ public:
         if (IsFull())
             throw "Table is full!";
 
-        this->Eff = 0;  // Сбрасываем счётчик перед поиском
+        this->Eff = 0;
         if (Find(key))
             throw "Error this rec exists!";
 
         status[curr] = Used;
         pRec[curr] = Record<TKey, TVal>(key, val);
         this->DataCount++;
-        this->Eff++;  // Учитываем только саму вставку
+        this->Eff++; 
     }
 
     void Delete(TKey key) {

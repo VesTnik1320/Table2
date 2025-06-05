@@ -221,14 +221,14 @@ void PrintTreeToFile(TreeNode<Key, Value>* node, std::ofstream& out, const std::
     if (!node) return;
 
     out << prefix;
-    out << (isLeft ? "|-- " : "`-- "); // Используем ASCII вместо ├── и └──
+    out << (isLeft ? "|-- " : "`-- "); 
     out << "[" << node->rec.key << "] : " << node->rec.val;
     if (node->bal != BAL_OK) {
         out << " (баланс: " << node->bal << ")";
     }
     out << "\n";
 
-    std::string newPrefix = prefix + (isLeft ? "|   " : "    "); // Используем | вместо │
+    std::string newPrefix = prefix + (isLeft ? "|   " : "    ");
     if (node->pLeft || node->pRight) {
         if (node->pLeft)  PrintTreeToFile(node->pLeft, out, newPrefix, true);
         if (node->pRight) PrintTreeToFile(node->pRight, out, newPrefix, false);

@@ -47,10 +47,10 @@ public:
 
     void Insert(Tkey key, TVal val) {
         if (Find(key))
-            throw - 2;  // Уже существует
+            throw - 2;
 
         if (this->DataCount == this->size)
-            throw - 1;  // Нет места
+            throw - 1;
 
         Record<Tkey, TVal> r(key, val);
         this->pRec[this->DataCount] = r; 

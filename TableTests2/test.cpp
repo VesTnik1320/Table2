@@ -787,7 +787,6 @@ TEST(TreeTable, IterationInCorrectOrder) {
     EXPECT_TRUE(table.IsEnd());
 }
 
-// Проверка getDataCount после вставки
 TEST(TreeTable, DataCountAfterInsert) {
     TreeTable<int, std::string> table;
     table.Insert(5, "five");
@@ -800,14 +799,12 @@ TEST(TreeTable, DeleteNonExistentKeyThrows) {
     EXPECT_ANY_THROW(table.Delete(42));
 }
 
-// Итерация по пустому дереву — сразу isEnd
 TEST(TreeTable, IteratorOnEmptyTree) {
     TreeTable<int, std::string> table;
     table.Reset();
     EXPECT_TRUE(table.IsEnd());
 }
 
-// Последовательное удаление всех элементов
 TEST(TreeTable, SequentialDeletionLeavesTreeEmpty) {
     TreeTable<int, std::string> table;
     table.Insert(5, "five");

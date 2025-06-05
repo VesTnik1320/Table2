@@ -24,7 +24,6 @@ public:
         delete[] pList;
     }
 
-    // Конструктор копирования
     ListHashTable(const ListHashTable& other) : HashTable<TKey, TVal>(other.size) {
         pList = new std::list<Record<TKey, TVal>>[this->size];
         for (int i = 0; i < this->size; i++) {
@@ -33,11 +32,9 @@ public:
         this->DataCount = other.DataCount;
         this->Eff = other.Eff;
         CurrList = other.CurrList;
-        // Итераторы нельзя просто копировать, нужно переустановить
         Reset();
     }
 
-    // Оператор присваивания
     ListHashTable& operator=(const ListHashTable& other) {
         if (this != &other) {
             delete[] pList;
@@ -50,7 +47,6 @@ public:
             this->DataCount = other.DataCount;
             this->Eff = other.Eff;
             CurrList = other.CurrList;
-            // Итераторы нельзя просто копировать, нужно переустановить
             Reset();
         }
         return *this;
@@ -71,10 +67,10 @@ public:
         if (IsFull())
             throw "Error, no space for new record!";
 
-        if (Find(rec.key))  // Find устанавливает CurrList
+        if (Find(rec.key)) 
             throw "Error, this record already exists!";
 
-        pList[CurrList].push_front(rec);  // Используем CurrList, чтобы не вызывать HashFunc снова
+        pList[CurrList].push_front(rec);
         this->DataCount++;
         this->Eff++;
     }
