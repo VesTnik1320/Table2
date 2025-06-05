@@ -83,6 +83,7 @@ public:
         }
         return pList[index].empty();
     }
+
     bool Find(TKey key) {
         this->Eff = 0;
         CurrList = this->HashFunc(key);

@@ -281,6 +281,7 @@ void TreeTable<TKey, TVal>::Reset() {
     }
     pos = 0;
 }
+
 template<class TKey, class TVal>
 void TreeTable<TKey, TVal> ::GoNext() {
     pCurr = pCurr->pRight;
@@ -297,10 +298,12 @@ void TreeTable<TKey, TVal> ::GoNext() {
         }
     }
 }
+
 template<class TKey, class TVal>
 bool TreeTable<TKey, TVal>::IsEnd() {
     return pos >= this->DataCount;
 }
+
 template<class TKey, class TVal>
 void TreeTable<TKey, TVal>::PrintRec(ostream& os, TreeNode<TKey, TVal>* p) {
     if (p == nullptr) {
@@ -315,6 +318,7 @@ void TreeTable<TKey, TVal>::PrintRec(ostream& os, TreeNode<TKey, TVal>* p) {
     PrintRec(os, p->pLeft);
     level--;
 }
+
 template<class TKey, class TVal>
 void TreeTable<TKey, TVal>::PrintTree(ostream& os) {
     level = 0;

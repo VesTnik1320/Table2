@@ -1,16 +1,21 @@
 #pragma once
 #include "Table.h"
 #include "Record.h"
+#include <functional>
+
 template <typename TKey, typename TVal>
 class HashTable : public Table<TKey, TVal> {
 protected:
     int size;
-
-    virtual int HashFunc(TKey key) {
-        this->Eff++;
-        return std::hash<TKey>{}(key) % size;
+public:
+    HashTable(int sz = 10) : size(sz) {
+        this->DataCount = 0;
+        this->Eff = 0;
     }
 
-public:
-    HashTable(int sz = 10) : size(sz) {}
+    virtual ~HashTable() = default;
+
+    virtual int HashFunc(TKey key) const {
+        return std::hash<TKey>{}(key) % size;
+    }
 };

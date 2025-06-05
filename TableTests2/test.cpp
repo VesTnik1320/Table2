@@ -191,7 +191,7 @@ TEST(ArrayHashTable, TheAverageDeleteIsConst) {
     table.Delete(7);
     EXPECT_LE(table.GetEff(), 2);
 }
-//-----------------------------------------------------------------------------------
+
 TEST(ArrayHashTable, ProbeWrapAround) {
     ArrayHashTable<int, std::string> table(5, 2);  // Размер 5, шаг пробирования 2
     table.Insert(1, "one");
@@ -203,7 +203,7 @@ TEST(ArrayHashTable, ProbeWrapAround) {
     EXPECT_TRUE(table.Find(1));
     EXPECT_TRUE(table.Find(6));
 }
-//-----------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------
 TEST(ScanTable, InsertAndFind) {
     ScanTable<int, int> table(5);
 
@@ -458,7 +458,7 @@ TEST(ScanTable, TheWorstDeleteIsLinear) {
     table.Delete(7);
     EXPECT_LE(table.GetEff(), 5);
 }
-
+//-------------------------------------------------------------------------------------------------------------------------------------------
 TEST(SortTable, InsertIntoEmpty) {
     SortTable<int, int> table(5);
     EXPECT_NO_THROW(table.Insert(2, 2));
@@ -648,7 +648,7 @@ TEST(SortTable, THeWorstInsertIsLinear2) {
     table.Insert(10, 10);
     EXPECT_LE(table.GetEff(), 10);
 }
-
+//-------------------------------------------------------------------------------------------------------------------------------------------
 TEST(TreeTable, CanInsertElementToEmptyTable) {
     TreeTable<int, std::string> table;
     ASSERT_NO_THROW(table.Insert(1, "one"));
@@ -908,7 +908,7 @@ TEST(TreeTable, AverageCaseDeleteIsLogN) {
     table.Delete(6);
     EXPECT_LE(table.GetEff(), 5);
 }
-
+//-------------------------------------------------------------------------------------------------------------------------------------------
 TEST(ListHashTable, ThrowsWhenInsertingExistingKey) {
     ListHashTable<int, std::string> table;
     table.Insert(10, "ten");
@@ -971,7 +971,7 @@ TEST(ListHashTable, CanClearTableCompletely) {
     EXPECT_EQ(table.GetDataCount(), 0);
     EXPECT_TRUE(table.IsEmpty());
 }
-//-----------------------------------------------------------------------------------
+
 TEST(ListHashTable, HandlesCollision) {
     ListHashTable<int, std::string> table(3);  // маленький размер таблицы для коллизий
 
@@ -997,7 +997,7 @@ TEST(ListHashTable, HandlesCollision) {
     }
     EXPECT_TRUE(found1 && found4);
 }
-//-----------------------------------------------------------------------------------
+
 TEST(ListHashTable, CannotFindDeletedRecord) {
     ListHashTable<int, std::string> table;
     table.Insert(5, "five");
@@ -1114,7 +1114,7 @@ TEST(ListHashTable, LargeTableKeepsFindEfficient) {
 
     EXPECT_LE(table.GetEff(), 3);
 }
-
+//-------------------------------------------------------------------------------------------------------------------------------------------
 TEST(BalTreeTable, CanInsertElementToTable33) {
     BalTreeTable<int, std::string> table;
     ASSERT_NO_THROW(table.Insert(5, "five"));

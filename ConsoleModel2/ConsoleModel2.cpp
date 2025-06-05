@@ -244,6 +244,35 @@ void ConsoleModel::PrintTable() const {
                 << std::string(ELEMENTS_WIDTH + 2, *BOX_HORIZ)
                 << BOX_CORNER_BR << "\n";
         }
+        else if (auto arrayHashTable = dynamic_cast<ArrayHashTable<int, int>*>(table)) {
+            const int INDEX_WIDTH = 12;
+            const int KEY_WIDTH = 14;
+            const int VAL_WIDTH = 13;
+
+            auto drawLine = [&](char left, char middle1, char middle2, char right, char fill) {
+                std::cout << left
+                    << std::string(INDEX_WIDTH + 2, fill) << middle1
+                    << std::string(KEY_WIDTH + 2, fill) << middle2
+                    << std::string(VAL_WIDTH + 2, fill) << right << "\n";
+                };
+
+            drawLine('+', '+', '+', '+', '=');
+            std::cout << "| " << std::setw(INDEX_WIDTH) << "Хеш-индекс"
+                << " | " << std::setw(KEY_WIDTH) << "Ключ"
+                << " | " << std::setw(VAL_WIDTH) << "Значение" << " |\n";
+            drawLine('+', '+', '+', '+', '-');
+
+            for (int i = 0; i < arrayHashTable->GetSize(); ++i) {
+                const auto& item = arrayHashTable->GetArray()[i];
+                bool isOccupied = arrayHashTable->IsOccupied(i);
+
+                std::cout << "| " << std::setw(INDEX_WIDTH) << i
+                    << " | " << std::setw(KEY_WIDTH) << (isOccupied ? std::to_string(item.key) : "-")
+                    << " | " << std::setw(VAL_WIDTH) << (isOccupied ? std::to_string(item.val) : "-") << " |\n";
+            }
+
+            drawLine('+', '+', '+', '+', '=');
+        }
 
         else {
             std::cout << BOX_CORNER_TL
@@ -357,6 +386,38 @@ void ConsoleModel::FilesUpdate() {
                 }
             }
             drawLine('+', '+', '+', '=');
+        }
+        else if (i == 2) {
+            auto arrayHashTable = dynamic_cast<ArrayHashTable<int, int>*>(tables[i]);
+            if (!arrayHashTable) continue;
+
+            const int INDEX_WIDTH = 12;
+            const int KEY_WIDTH = 14;
+            const int VAL_WIDTH = 13;
+
+            auto drawLine = [&](char left, char middle1, char middle2, char right, char fill) {
+                out << left
+                    << std::string(INDEX_WIDTH + 2, fill) << middle1
+                    << std::string(KEY_WIDTH + 2, fill) << middle2
+                    << std::string(VAL_WIDTH + 2, fill) << right << "\n";
+                };
+
+            drawLine('+', '+', '+', '+', '=');
+            out << "| " << std::setw(INDEX_WIDTH) << "Хеш-индекс"
+                << " | " << std::setw(KEY_WIDTH) << "Ключ"
+                << " | " << std::setw(VAL_WIDTH) << "Значение" << " |\n";
+            drawLine('+', '+', '+', '+', '-');
+
+            for (int j = 0; j < arrayHashTable->GetSize(); ++j) {
+                const auto& item = arrayHashTable->GetArray()[j];
+                bool isOccupied = arrayHashTable->IsOccupied(j);
+
+                out << "| " << std::setw(INDEX_WIDTH) << j
+                    << " | " << std::setw(KEY_WIDTH) << (isOccupied ? std::to_string(item.key) : "-")
+                    << " | " << std::setw(VAL_WIDTH) << (isOccupied ? std::to_string(item.val) : "-") << " |\n";
+            }
+
+            drawLine('+', '+', '+', '+', '=');
         }
 
         else {

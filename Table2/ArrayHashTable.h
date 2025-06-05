@@ -2,6 +2,8 @@
 #include "HashTable.h"  
 #include "Record.h"
 #include <functional> 
+#include <stdexcept>
+
 enum Status { Free, Deleted, Used };
 
 template <typename TKey, typename TVal>
@@ -11,48 +13,43 @@ protected:
     Record<TKey, TVal>* pRec;
     int step, curr;
     Status* status;
-    int size;
 
 public:
-    ArrayHashTable(int _size = 10, int _step = 1) : size(_size), step(_step), curr(0) {
+    ArrayHashTable(int _size = 10, int _step = 1) : HashTable<TKey, TVal>(_size), step(_step), curr(0) {
         if (_size <= 0 || _step < 1)
-            throw "Error size or step!";
+            throw std::invalid_argument("Invalid size or step!");
 
-        // Автоматический подбор шага, если передали 1
         if (step == 1) {
-            for (int i = 2; i * i <= size; i++) {
-                if (size % i != 0) {
+            for (int i = 2; i < _size; ++i) {
+                if (_size % i != 0) {
                     step = i;
                     break;
                 }
             }
         }
-        //для размера 10: проверяет 2 (10 делится на 2), затем 3 (10 не делится на 3) - устанавливает шаг 3
-        pRec = new Record<TKey, TVal>[size];
-        status = new Status[size];
 
-        for (int i = 0; i < size; i++) {
+        pRec = new Record<TKey, TVal>[this->size];
+        status = new Status[this->size];
+        for (int i = 0; i < this->size; i++) {
             status[i] = Free;
         }
     }
 
-    ~ArrayHashTable() {
+    ~ArrayHashTable() override {
         delete[] pRec;
         delete[] status;
     }
 
     ArrayHashTable(const ArrayHashTable& other) :
-        size(other.size), step(other.step), curr(other.curr)
+        HashTable<TKey, TVal>(other), step(other.step), curr(other.curr)
     {
-        pRec = new Record<TKey, TVal>[size];
-        status = new Status[size];
+        pRec = new Record<TKey, TVal>[this->size];
+        status = new Status[this->size];
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < this->size; i++) {
             pRec[i] = other.pRec[i];
             status[i] = other.status[i];
         }
-        this->DataCount = other.DataCount;
-        this->Eff = other.Eff;
     }
 
     ArrayHashTable& operator=(const ArrayHashTable& other) {
@@ -60,19 +57,16 @@ public:
             delete[] pRec;
             delete[] status;
 
-            size = other.size;
+            HashTable<TKey, TVal>::operator=(other);
             step = other.step;
             curr = other.curr;
 
-            pRec = new Record<TKey, TVal>[size];
-            status = new Status[size];
-
-            for (int i = 0; i < size; i++) {
+            pRec = new Record<TKey, TVal>[this->size];
+            status = new Status[this->size];
+            for (int i = 0; i < this->size; i++) {
                 pRec[i] = other.pRec[i];
                 status[i] = other.status[i];
             }
-            this->DataCount = other.DataCount;
-            this->Eff = other.Eff;
         }
         return *this;
     }
@@ -80,118 +74,134 @@ public:
     TKey GetCurrKey() { return pRec[curr].key; }
     TVal GetCurrVal() { return pRec[curr].val; }
     Record<TKey, TVal> GetCurr() { return pRec[curr]; }
+   
+    Record<TKey, TVal>* GetArray() const {
+        return pRec;
+    }
 
-    bool Find(TKey key) {
+    int GetSize() const {
+        return this->size;
+    }
+
+    bool IsOccupied(int index) const {
+        if (index < 0 || index >= this->size)
+            throw std::out_of_range("Index out of bounds");
+        return status[index] == Used;
+    }
+
+    bool Find(TKey key) override {
         curr = this->HashFunc(key);
         this->Eff = 0;
         int firstDeleted = -1;
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < this->size; i++) {
             this->Eff++;
-
             if (status[curr] == Free) {
-                if (firstDeleted != -1) curr = firstDeleted; 
-                break;
+                if (firstDeleted != -1) curr = firstDeleted;
+                return false;
             }
-            else if (status[curr] == Deleted && firstDeleted == -1) {
-                firstDeleted = curr; 
+            else if (status[curr] == Deleted) {
+                if (firstDeleted == -1)
+                    firstDeleted = curr;
             }
-            else if (status[curr] == Used && pRec[curr].key == key) {
+            else if (pRec[curr].key == key) {
                 return true;
             }
 
-            curr = (curr + step) % size;
+            curr = (curr + step) % this->size;
         }
 
+        if (firstDeleted != -1) curr = firstDeleted;
         return false;
     }
 
-    void Insert(TKey key, TVal val) {
+    void Insert(TKey key, TVal val) override {
         if (IsFull())
-            throw "Table is full!";
+            throw std::overflow_error("Table is full!");
 
         this->Eff = 0;
         if (Find(key))
-            throw "Error this rec exists!";
+            throw std::runtime_error("Record already exists!");
 
-        status[curr] = Used;
         pRec[curr] = Record<TKey, TVal>(key, val);
+        status[curr] = Used;
         this->DataCount++;
-        this->Eff++; 
+        this->Eff++;
     }
 
-    void Delete(TKey key) {
+    void Delete(TKey key) override {
         if (!Find(key))
-            throw "Error this rec was deleted!";
+            throw std::runtime_error("Record not found!");
 
         status[curr] = Deleted;
         this->DataCount--;
         this->Eff++;
     }
 
-    void Reset() {
+    void Reset() override {
         curr = 0;
-        while (curr < size && (status[curr] == Free || status[curr] == Deleted)) {
+        while (curr < this->size && (status[curr] == Free || status[curr] == Deleted)) {
             curr++;
         }
     }
 
-    void GoNext() {
+    void GoNext() override {
         curr++;
-        while (curr < size && (status[curr] == Free || status[curr] == Deleted)) {
+        while (curr < this->size && (status[curr] == Free || status[curr] == Deleted)) {
             curr++;
         }
     }
 
-    bool IsEnd() {
-        return curr >= size;
+    bool IsEnd() override {
+        return curr >= this->size;
     }
 
-    void Clear() {
+    void Clear() override {
         this->DataCount = 0;
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < this->size; i++) {
             status[i] = Free;
         }
     }
 
-    bool IsFull() const {
-        return this->DataCount >= size;
+    bool IsFull() const override {
+        return this->DataCount >= this->size;
     }
 
-    int HashFunc(TKey key) const {
-        std::hash<TKey> hasher; 
-        return static_cast<int>(hasher(key) % size);
-    }
     void Resize(int newSize) override {
-        if (newSize < this->DataCount) {
-            throw std::invalid_argument("Новый размер меньше текущего количества данных");
-        }
+        if (newSize < this->DataCount)
+            throw std::invalid_argument("New size too small");
 
         Record<TKey, TVal>* newRecs = new Record<TKey, TVal>[newSize];
         Status* newStatus = new Status[newSize];
+        for (int i = 0; i < newSize; i++) newStatus[i] = Free;
 
-        for (int i = 0; i < size; i++) {
-            if (status[i] == Used) {
-                int newPos = this->HashFunc(pRec[i].key) % newSize;
-                while (newStatus[newPos] != Free) {
-                    newPos = (newPos + step) % newSize;
+        int oldSize = this->size;
+        auto oldRecs = pRec;
+        auto oldStatus = status;
+
+        this->size = newSize; 
+
+        for (int i = 0; i < oldSize; i++) {
+            if (oldStatus[i] == Used) {
+                int hash = this->HashFunc(oldRecs[i].key);
+                int pos = hash;
+
+                while (newStatus[pos] == Used) {
+                    pos = (pos + step) % newSize;
                 }
-                newRecs[newPos] = pRec[i];
-                newStatus[newPos] = Used;
+
+                newRecs[pos] = oldRecs[i];
+                newStatus[pos] = Used;
             }
         }
 
-        delete[] pRec;
-        delete[] status;
+        delete[] oldRecs;
+        delete[] oldStatus;
 
         pRec = newRecs;
         status = newStatus;
-        size = newSize;
-
-        for (int i = this->DataCount; i < newSize; i++) {
-            status[i] = Free;
-        }
     }
+
     std::string GetTypeName() const override {
         return "ArrayHashTable";
     }
