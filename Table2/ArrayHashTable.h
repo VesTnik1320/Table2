@@ -27,7 +27,7 @@ public:
                 }
             }
         }
-
+        //для размера 10: проверяет 2 (10 делится на 2), затем 3 (10 не делится на 3) - устанавливает шаг 3
         pRec = new Record<TKey, TVal>[size];
         status = new Status[size];
 
@@ -83,6 +83,7 @@ public:
 
     bool Find(TKey key) {
         curr = this->HashFunc(key);
+        this->Eff = 0;
         int firstDeleted = -1;
 
         for (int i = 0; i < size; i++) {

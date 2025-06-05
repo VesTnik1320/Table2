@@ -39,6 +39,7 @@ public:
 
 	bool Find(Tkey key) {
 		int l = 0, r = this->DataCount - 1;
+		this->Eff = 0;
 		while (l <= r) {
 			int m = (l + r) / 2;
 			this->Eff++;

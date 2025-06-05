@@ -31,13 +31,13 @@ ConsoleModel::ConsoleModel(int size) {
     tablesSize = size;
     tablesItems = 0;
 
-    // Инициализация всех типов таблиц
-	tables.push_back(new ScanTable<std::string, int>(tablesSize));//неотсортированная таблица
-	tables.push_back(new SortTable<std::string, int>(tablesSize));//Сортированная таблица
-	tables.push_back(new ArrayHashTable<std::string, int>(tablesSize));//Хэш таблица с массивом
-	tables.push_back(new ListHashTable<std::string, int>(tablesSize)); //Хэш таблица со списком
-    tables.push_back(new TreeTable<std::string, int>()); //Дерево
-	tables.push_back(new BalTreeTable<std::string, int>()); //Сбалансированное дерево
+    // Создаем таблицы с числовыми ключами
+    tables.push_back(new ScanTable<int, int>(tablesSize));
+    tables.push_back(new SortTable<int, int>(tablesSize));
+    tables.push_back(new ArrayHashTable<int, int>(tablesSize));
+    tables.push_back(new ListHashTable<int, int>(tablesSize));
+    tables.push_back(new TreeTable<int, int>());
+    tables.push_back(new BalTreeTable<int, int>());
 }
 
 ConsoleModel::~ConsoleModel() {
@@ -46,9 +46,9 @@ ConsoleModel::~ConsoleModel() {
     }
 }
 
-void ConsoleModel::Insert(const std::string& key, int value) {
+void ConsoleModel::Insert(const int& key, int value) {
     try {
-        tables[currentTableIndex]->Insert( key, static_cast<unsigned __int64>(value) );
+        tables[currentTableIndex]->Insert(key, static_cast<unsigned __int64>(value));
         tablesItems++;
         Update("Элемент добавлен");
     }
@@ -57,7 +57,7 @@ void ConsoleModel::Insert(const std::string& key, int value) {
     }
 }
 
-bool ConsoleModel::Find(const std::string& key) {
+bool ConsoleModel::Find(const int& key) {
     try {
         bool found = tables[currentTableIndex]->Find(key);
         Update(found ? "Элемент найден" : "Элемент не найден");
@@ -69,7 +69,7 @@ bool ConsoleModel::Find(const std::string& key) {
     }
 }
 
-void ConsoleModel::Delete(const std::string& key) {
+void ConsoleModel::Delete(const int& key) {
     try {
         tables[currentTableIndex]->Delete(key);
         tablesItems--;
@@ -90,23 +90,17 @@ void ConsoleModel::InsertMany(int count, int border) {
     int inserted = 0;
     int step = std::max(1, count / 20);
 
-    int keyWidth = std::to_string(border - 1).length();
-
     std::cout << "Прогресс: [";
     while (inserted < count) {
         try {
-            int r = Random(border);
+            int key = Random(border);
+            int value = Random(border * 10);
 
-            std::ostringstream keyStream;
-            keyStream << std::setw(keyWidth) << std::setfill('0') << r;
-            std::string key = keyStream.str();
-
-            // Для BalTreeTable используем специальный метод вставки
-            if (auto balTree = dynamic_cast<BalTreeTable<std::string, int>*>(tables[currentTableIndex])) {
-                balTree->Inserte(key, r); 
+            if (auto balTree = dynamic_cast<BalTreeTable<int, int>*>(tables[currentTableIndex])) {
+                balTree->Inserte(key, value);
             }
             else {
-                tables[currentTableIndex]->Insert(key, static_cast<unsigned __int64>(r));
+                tables[currentTableIndex]->Insert(key, static_cast<unsigned __int64>(value));
             }
 
             inserted++;
@@ -115,11 +109,10 @@ void ConsoleModel::InsertMany(int count, int border) {
             }
         }
         catch (...) {
-            // Если ключ уже есть, пробуем снова
+            // Повтор при конфликте
         }
     }
     std::cout << "] 100%\n";
-
     tablesItems += inserted;
     Update("Добавлено " + std::to_string(inserted) + " элементов");
 }
@@ -128,22 +121,16 @@ void ConsoleModel::CreateTables(int size, int count, int border) {
     tablesSize = size;
     tablesItems = 0;
 
-    // Очищаем старые таблицы
-    for (auto table : tables) {
-        delete table;
-    }
+    for (auto table : tables) delete table;
     tables.clear();
 
-    // Создаем новые таблицы
-    tables.push_back(new ScanTable<std::string, int>(tablesSize));
-    tables.push_back(new SortTable<std::string, int>(tablesSize));
-    tables.push_back(new ArrayHashTable<std::string, int>(tablesSize));
-    tables.push_back(new ListHashTable<std::string, int>(tablesSize));
-    tables.push_back(new TreeTable<std::string, int>());
-    tables.push_back(new BalTreeTable<std::string, int>());
+    tables.push_back(new ScanTable<int, int>(tablesSize));
+    tables.push_back(new SortTable<int, int>(tablesSize));
+    tables.push_back(new ArrayHashTable<int, int>(tablesSize));
+    tables.push_back(new ListHashTable<int, int>(tablesSize));
+    tables.push_back(new TreeTable<int, int>());
+    tables.push_back(new BalTreeTable<int, int>());
 
-
-    // Добавляем элементы
     InsertMany(count, border);
 }
 
@@ -153,25 +140,13 @@ void ConsoleModel::SwitchTableType() {
 }
 
 std::string ConsoleModel::GetCurrentTableType() const {
-    if (dynamic_cast<SortTable<std::string, int>*>(tables[currentTableIndex])) {
-        return "SortTable";
-    }
-    if (dynamic_cast<ScanTable<std::string, int>*>(tables[currentTableIndex])) {
-        return "ScanTable";
-    }
-    if (dynamic_cast<ArrayHashTable<std::string, int>*>(tables[currentTableIndex])) {
-        return "ArrayHashTable";
-    }
-    if (dynamic_cast<ListHashTable<std::string, int>*>(tables[currentTableIndex])) {
-        return "ListHashTable";
-    }
-    // BalTreeTable ДО TreeTable
-    if (dynamic_cast<BalTreeTable<std::string, int>*>(tables[currentTableIndex])) {
-        return "BalTreeTable";
-    }
-    if (dynamic_cast<TreeTable<std::string, int>*>(tables[currentTableIndex])) {
-        return "TreeTable";
-    }
+    // BalTreeTable проверяется до TreeTable
+    if (dynamic_cast<BalTreeTable<int, int>*>(tables[currentTableIndex])) return "BalTreeTable";
+    if (dynamic_cast<TreeTable<int, int>*>(tables[currentTableIndex])) return "TreeTable";
+    if (dynamic_cast<SortTable<int, int>*>(tables[currentTableIndex])) return "SortTable";
+    if (dynamic_cast<ScanTable<int, int>*>(tables[currentTableIndex])) return "ScanTable";
+    if (dynamic_cast<ArrayHashTable<int, int>*>(tables[currentTableIndex])) return "ArrayHashTable";
+    if (dynamic_cast<ListHashTable<int, int>*>(tables[currentTableIndex])) return "ListHashTable";
     return "Unknown";
 }
 
@@ -221,7 +196,7 @@ void PrintTreeToFile(TreeNode<Key, Value>* node, std::ofstream& out, const std::
     if (!node) return;
 
     out << prefix;
-    out << (isLeft ? "|-- " : "`-- "); 
+    out << (isLeft ? "|-- " : "`-- ");
     out << "[" << node->rec.key << "] : " << node->rec.val;
     if (node->bal != BAL_OK) {
         out << " (баланс: " << node->bal << ")";
@@ -236,31 +211,24 @@ void PrintTreeToFile(TreeNode<Key, Value>* node, std::ofstream& out, const std::
 }
 
 void ConsoleModel::FilesUpdate() {
-    vector<string> paths = {
-        "ScanTable.txt",
-        "SortTable.txt",
-        "ListHashTable.txt",
-        "ArrayHashTable.txt",
-        "TreeTable.txt",
-        "BalanceTreeTable.txt"
+    std::vector<std::string> paths = {
+        "ScanTable.txt", "SortTable.txt", "ArrayHashTable.txt",
+        "ListHashTable.txt", "TreeTable.txt", "BalTreeTable.txt"
     };
 
-    // Сохраняем все таблицы
-    for (size_t i = 0; i < tables.size() && i < paths.size(); i++) {
-        ofstream out(paths[i]);
-        if (!out.is_open()) {
-            cerr << "Ошибка открытия файла: " << paths[i] << endl;
+    for (size_t i = 0; i < tables.size(); i++) {
+        std::ofstream out(paths[i]);
+        if (!out) {
+            std::cerr << "Ошибка открытия файла: " << paths[i] << "\n";
             continue;
         }
 
-        // Для деревьев используем специальный формат вывода
         if (i == 4 || i == 5) { // TreeTable и BalTreeTable
-            if (auto tree = dynamic_cast<TreeTable<string, int>*>(tables[i])) {
-                PrintTreeToFile(tree->GetRoot(), out, "", true);
-
+            if (auto tree = dynamic_cast<TreeTable<int, int>*>(tables[i])) {
+                PrintTreeToFile(tree->GetRoot(), out);
             }
         }
-        else { // Для остальных таблиц обычный вывод
+        else {
             tables[i]->Reset();
             while (!tables[i]->IsEnd()) {
                 auto record = tables[i]->GetCurr();
@@ -283,20 +251,19 @@ void ConsoleModel::Run() {
         switch (command) {
         case '1': SwitchTableType(); break;
         case '2': {
-            std::string key;
-            int value;
+            int key, value;
             std::cin >> key >> value;
             Insert(key, value);
             break;
         }
         case '3': {
-            std::string key;
+            int key;
             std::cin >> key;
             Delete(key);
             break;
         }
         case '4': {
-            std::string key;
+            int key;
             std::cin >> key;
             Find(key);
             break;
@@ -323,7 +290,7 @@ void ConsoleModel::Run() {
             break;
         }
         case 's': {
-            if (auto sortTable = dynamic_cast<SortTable<std::string, int>*>(tables[currentTableIndex])) {
+            if (auto sortTable = dynamic_cast<SortTable<int, int>*>(tables[currentTableIndex])) {
                 std::cout << "Выберите метод сортировки:\n"
                     << "1. SelectSort\n"
                     << "2. QSortRec\n"
@@ -361,58 +328,22 @@ void ConsoleModel::Run() {
     Update("Работа завершена");
 }
 
-void ConsoleModel::DrawHeader(const std::string& title) {
-    const int width = 40;
-    std::cout << BOX_CORNER_TL << std::string(width - 2, *BOX_HORIZ) << BOX_CORNER_TR << "\n";
-    std::cout << BOX_VERT << std::setw((width + title.length()) / 2) << title
-        << std::setw(width - (width + title.length()) / 2) << BOX_VERT << "\n";
-    std::cout << BOX_T_LEFT << std::string(width - 2, *BOX_HORIZ) << BOX_T_RIGHT << "\n";
-}
-
-void ConsoleModel::DrawHorizontalLine() {
-    const int width = 40;
-    std::cout << BOX_T_LEFT << std::string(width - 2, *BOX_HORIZ) << BOX_T_RIGHT << "\n";
-}
-
-void ConsoleModel::DrawMessage(const std::string& message) {
-    if (!message.empty()) {
-        std::cout << BOX_VERT << " " << COLOR_RED << std::left << std::setw(36) << message
-            << COLOR_RESET << BOX_VERT << "\n";
-        DrawHorizontalLine();
+void ConsoleModel::ChangeTableSize(int newSize) {
+    if (newSize <= 0) {
+        Update("Ошибка: размер должен быть положительным");
+        return;
     }
-}
 
-void ConsoleModel::DrawTableInfo() {
-    const int width = 40;
-    std::cout << BOX_VERT << " Текущая таблица: " << std::left << std::setw(21)
-        << GetCurrentTableType() << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " Размер таблицы: " << std::setw(21) << tablesSize << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " Элементов: " << std::setw(26) << tablesItems << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " Эффективность: " << std::setw(22)
-        << tables[currentTableIndex]->GetEff() << BOX_VERT << "\n";
-    DrawHorizontalLine();
-}
-
-void ConsoleModel::DrawMenu() {
-    const int width = 40;
-    std::cout << BOX_VERT << " 1: Сменить тип таблицы" << std::setw(16) << " " << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " 2: Добавить элемент(ключ значение)" << std::setw(18) << " " << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " 3: Удалить элемент(ключ)" << std::setw(19) << " " << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " 4: Найти элемент(ключ)" << std::setw(21) << " " << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " 5: Добавить несколько элементов(количество граница)" << std::setw(18) << " " << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " 6: Очистить таблицу" << std::setw(19) << " " << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " 7: Вывести таблицу" << std::setw(20) << " " << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " 8: Сохранить в файлы" << std::setw(18) << " " << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " 9: Изменить размер" << std::setw(19) << " " << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " s: Сортировать SortTable" << std::setw(14) << " " << BOX_VERT << "\n";
-    std::cout << BOX_VERT << " q: Выход" << std::setw(30) << " " << BOX_VERT << "\n";
-    std::cout << BOX_CORNER_BL << std::string(width - 2, *BOX_HORIZ) << BOX_CORNER_BR << "\n";
-    std::cout << "> ";
+    tablesSize = newSize;
+    for (auto table : tables) {
+        table->Resize(newSize);
+    }
+    Update("Размер таблицы изменен на " + std::to_string(newSize));
 }
 
 void ConsoleModel::Update(const std::string& message) {
     system("cls");
-    const int BOX_WIDTH = 60; 
+    const int BOX_WIDTH = 60;
 
     // Верхняя граница
     std::cout << BOX_CORNER_TL << std::string(BOX_WIDTH - 2, *BOX_HORIZ) << BOX_CORNER_TR << "\n";
@@ -466,17 +397,4 @@ void PrintInBoxLine(const std::string& content, int boxWidth) {
         trimmed = content.substr(0, maxContentWidth - 3) + "...";
 
     std::cout << BOX_VERT << " " << std::left << std::setw(maxContentWidth) << trimmed << " " << BOX_VERT << "\n";
-}
-
-void ConsoleModel::ChangeTableSize(int newSize) {
-    if (newSize <= 0) {
-        Update("Ошибка: размер должен быть положительным");
-        return;
-    }
-
-    tablesSize = newSize;
-    for (auto table : tables) {
-        table->Resize(newSize); 
-    }
-    Update("Размер таблицы изменен на " + std::to_string(newSize));
 }

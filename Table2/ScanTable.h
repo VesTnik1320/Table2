@@ -34,6 +34,7 @@ public:
     }
 
     bool Find(Tkey key) {
+        this->Eff = 0;
         for (int i = 0; i < this->DataCount; i++) {
             this->Eff++;
             if (key == this->pRec[i].key) {
