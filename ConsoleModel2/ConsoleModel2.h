@@ -36,7 +36,7 @@ class ConsoleModel {
 private:
     int tablesSize;                          // Размер таблиц
     int tablesItems;                         // Количество элементов
-    std::vector<Table<int, int>*> tables;    // Коллекция таблиц с целочисленными ключами
+    std::vector<Table<int, int>*> tables;   
     int currentTableIndex = 0;
 
     std::string CreateHorizontalLine(int width) const {
@@ -53,13 +53,7 @@ private:
         std::cout << BOX_VERT << " " << std::left << std::setw(boxWidth - 2) << text << " " << BOX_VERT << "\n";
     }
 
-    bool showTableTypeAlways = true;  // Флаг для постоянного отображения типа таблицы
-
-    void DrawHeader(const std::string& title);
-    void DrawHorizontalLine();
-    void DrawMessage(const std::string& message);
-    void DrawTableInfo();
-    void DrawMenu();
+    bool showTableTypeAlways = true;
     void Update(const std::string& message = "");
     void FilesUpdate();
     int Random(int border);

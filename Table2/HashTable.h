@@ -13,5 +13,4 @@ protected:
 
 public:
     HashTable(int sz = 10) : size(sz) {}
-    //virtual ~HashTable() = default;  // Добавляем виртуальный деструктор
 };

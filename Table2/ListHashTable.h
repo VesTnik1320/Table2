@@ -52,6 +52,37 @@ public:
         return *this;
     }
 
+    int GetSize() const {
+        return this->size;
+    }
+
+    const std::list<Record<TKey, TVal>>& GetList(int index) const {
+        if (index < 0 || index >= this->size) {
+            throw std::out_of_range("Invalid list index");
+        }
+        return pList[index];
+    }
+
+    typename std::list<Record<TKey, TVal>>::const_iterator GetListBegin(int index) const {
+        if (index < 0 || index >= this->size) {
+            throw std::out_of_range("Invalid list index");
+        }
+        return pList[index].begin();
+    }
+
+    typename std::list<Record<TKey, TVal>>::const_iterator GetListEnd(int index) const {
+        if (index < 0 || index >= this->size) {
+            throw std::out_of_range("Invalid list index");
+        }
+        return pList[index].end();
+    }
+
+    bool IsListEmpty(int index) const {
+        if (index < 0 || index >= this->size) {
+            throw std::out_of_range("Invalid list index");
+        }
+        return pList[index].empty();
+    }
     bool Find(TKey key) {
         this->Eff = 0;
         CurrList = this->HashFunc(key);
@@ -74,7 +105,6 @@ public:
         this->DataCount++;
         this->Eff++;
     }
-
 
     void Insert(TKey key, TVal val) {
         Record<TKey, TVal> rec(key, val);
@@ -152,7 +182,7 @@ public:
 
         for (int i = 0; i < this->size; i++) {
             for (const auto& rec : pList[i]) {
-                int newHash = this->HashFunc(rec.key) % newSize;
+                int newHash = std::hash<TKey>{}(rec.key) % newSize;
                 newLists[newHash].push_back(rec);
             }
         }

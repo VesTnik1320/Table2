@@ -127,7 +127,6 @@ bool TreeTable<TKey, TVal>::Find(TKey key)
     return false;
 }
 
-
 template<class TKey, class TVal>
 void TreeTable<TKey, TVal>::Insert(TKey key, TVal val) 
 {
