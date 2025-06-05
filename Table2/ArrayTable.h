@@ -1,18 +1,18 @@
 #pragma once
 #include "Table.h"
 #include "Record.h"
-template<typename TKey, typename TValue>
-class ArrayTable : public Table<TKey, TValue>
+template<typename TKey, typename TVal>
+class ArrayTable : public Table<TKey, TVal>
 {
 protected:
     int size, Curr;
-    Record<TKey, TValue>* pRec;
+    Record<TKey, TVal>* pRec;
 public:
-    ArrayTable(int size) : size(size), pRec(new Record<TKey, TValue>[size]), Curr(0), Table<TKey, TValue>() {}
+    ArrayTable(int size) : size(size), pRec(new Record<TKey, TVal>[size]), Curr(0), Table<TKey, TVal>() {}
 
     TKey GetCurrKey() { return pRec[Curr].key; }
-    TValue GetCurrVal() { return pRec[Curr].val; } 
-    Record<TKey, TValue> GetCurrRec() { return pRec[Curr]; } 
+    TVal GetCurrVal() { return pRec[Curr].val; } 
+    Record<TKey, TVal> GetCurrRec() { return pRec[Curr]; } 
     ~ArrayTable() { delete[] pRec; }
     void Clear() { this->DataCount = 0; }
     bool IsFull() const { return this->DataCount == size; }
@@ -24,7 +24,7 @@ public:
         Curr = arrayTable.Curr;
 
         delete[] pRec;
-        pRec = new Record<TKey, TValue>[size];
+        pRec = new Record<TKey, TVal>[size];
         for (int i = 0; i < size; i++)
         {
             pRec[i] = arrayTable.pRec[i];
@@ -37,7 +37,7 @@ public:
         if (newSize < this->DataCount) {
             throw std::invalid_argument("Ќовый размер меньше текущего количества данных");
         }
-        Record<TKey, TValue>* newArr = new Record<TKey, TValue>[newSize];
+        Record<TKey, TVal>* newArr = new Record<TKey, TVal>[newSize];
         for (int i = 0; i < this->DataCount; ++i) {
             newArr[i] = this->pRec[i];
         }

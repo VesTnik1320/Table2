@@ -3,12 +3,12 @@
 #include "Table.h"
 #include "ScanTable.h"
 #include "Record.h"
-template <typename Tkey, typename TVal>
-class SortTable : public ScanTable<Tkey, TVal> {
+template <typename TKey, typename TVal>
+class SortTable : public ScanTable<TKey, TVal> {
 protected:
-	Record<Tkey, TVal>* tmpArr;
+	Record<TKey, TVal>* tmpArr;
 public:
-	SortTable(int _size) : ScanTable<Tkey, TVal>(_size), tmpArr(nullptr) {}
+	SortTable(int _size) : ScanTable<TKey, TVal>(_size), tmpArr(nullptr) {}
 	~SortTable() {
 		delete[] tmpArr;
 	}
@@ -23,7 +23,7 @@ public:
 		if (this->size != other.size) {
 			delete[] this->pRec; 
 			this->size = other.size;
-			this->pRec = new Record<Tkey, TVal>[this->size];
+			this->pRec = new Record<TKey, TVal>[this->size];
 		}
 
 		this->DataCount = other.DataCount;
@@ -37,7 +37,7 @@ public:
 		return *this;
 	}
 
-	bool Find(Tkey key) {
+	bool Find(TKey key) {
 		int l = 0, r = this->DataCount - 1;
 		this->Eff = 0;
 		while (l <= r) {
@@ -56,7 +56,7 @@ public:
 		return false;
 	}
 
-	void Insert(Tkey Key, TVal Val)
+	void Insert(TKey Key, TVal Val)
 	{
 		if (this->DataCount == this->size) throw - 1;
 		if (Find(Key)) throw - 1;
@@ -70,7 +70,7 @@ public:
 		this->Eff++;
 	}
 
-	void Delete(Tkey key) {
+	void Delete(TKey key) {
 		bool res = Find(key);
 		if (res == false) throw - 1;
 		for (int i = this->Curr; i < this->DataCount - 1; i++) {
@@ -124,7 +124,7 @@ public:
 
 	void Merge(int l, int r, int m) {
 		if (tmpArr == nullptr) {
-			tmpArr = new Record<Tkey, TVal>[this->size];
+			tmpArr = new Record<TKey, TVal>[this->size];
 		}
 
 		int i = l, j = m + 1, k = l;
@@ -161,7 +161,7 @@ public:
 	}
 
 	void Resize(int newSize) override {
-		ScanTable<Tkey, TVal>::Resize(newSize);
+		ScanTable<TKey, TVal>::Resize(newSize);
 	}
 
 	std::string GetTypeName() const override {

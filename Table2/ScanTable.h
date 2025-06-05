@@ -2,16 +2,16 @@
 #include "Table.h"
 #include "ArrayTable.h"
 #include "Record.h"
-template <typename Tkey, typename TVal>
-class ScanTable : public ArrayTable<Tkey, TVal> {
+template <typename TKey, typename TVal>
+class ScanTable : public ArrayTable<TKey, TVal> {
 public:
-    ScanTable(int _size) : ArrayTable<Tkey, TVal>(_size) {}
+    ScanTable(int _size) : ArrayTable<TKey, TVal>(_size) {}
 
-    ScanTable(const ScanTable& other) : ArrayTable<Tkey, TVal>(other.size) {
+    ScanTable(const ScanTable& other) : ArrayTable<TKey, TVal>(other.size) {
         this->DataCount = other.DataCount;
         this->Curr = other.Curr;
         this->Eff = other.Eff;
-        this->pRec = new Record<Tkey, TVal>[this->size];
+        this->pRec = new Record<TKey, TVal>[this->size];
         for (int i = 0; i < this->DataCount; i++) {
             this->pRec[i] = other.pRec[i];
         }
@@ -26,14 +26,14 @@ public:
         this->DataCount = other.DataCount;
         this->Curr = other.Curr;
         this->Eff = other.Eff;
-        this->pRec = new Record<Tkey, TVal>[this->size];
+        this->pRec = new Record<TKey, TVal>[this->size];
         for (int i = 0; i < this->DataCount; i++) {
             this->pRec[i] = other.pRec[i];
         }
         return *this;
     }
 
-    bool Find(Tkey key) {
+    bool Find(TKey key) {
         this->Eff = 0;
         for (int i = 0; i < this->DataCount; i++) {
             this->Eff++;
@@ -46,20 +46,20 @@ public:
         return false;
     }
 
-    void Insert(Tkey key, TVal val) {
+    void Insert(TKey key, TVal val) {
         if (Find(key))
             throw - 2;
 
         if (this->DataCount == this->size)
             throw - 1;
 
-        Record<Tkey, TVal> r(key, val);
+        Record<TKey, TVal> r(key, val);
         this->pRec[this->DataCount] = r; 
         this->DataCount++;
         this->Eff++;
     }
 
-    void Delete(Tkey key) {
+    void Delete(TKey key) {
         if (!Find(key)) throw - 3;
         this->pRec[this->Curr] = this->pRec[this->DataCount - 1];
         this->DataCount--;
@@ -87,7 +87,7 @@ public:
         return this->DataCount == 0;
     }
 
-    Record<Tkey, TVal> GetCurr() {
+    Record<TKey, TVal> GetCurr() {
         if (this->Curr < this->DataCount)
             return this->pRec[this->Curr];
         throw - 4;
@@ -98,7 +98,7 @@ public:
     }
     
     void Resize(int newSize) override {
-        ArrayTable<Tkey, TVal>::Resize(newSize);
+        ArrayTable<TKey, TVal>::Resize(newSize);
     }
 
     std::string GetTypeName() const override {
